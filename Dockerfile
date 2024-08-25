@@ -22,7 +22,8 @@ RUN apt-get update && \
         zlib1g-dev \
         libpcre3-dev \
         wget \
-        ca-certificates && \
+        ca-certificates \
+        netcat-traditional && \
     rm -rf /var/lib/apt/lists/*
 
 # Download and set permissions for wait-for script
