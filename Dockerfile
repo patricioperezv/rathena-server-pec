@@ -6,6 +6,10 @@ ARG REVISION=master
 # Define the ARG for the build configuration
 ARG BUILD_CONFIGURE="--enable-packetver=20211103"
 
+ENV WAIT_FOR_VERSION=2.2.4
+ENV GOMPLATE_VERSION=4.1.0
+
+
 # Install necessary dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -22,8 +26,12 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Download and set permissions for wait-for script
-RUN wget https://raw.githubusercontent.com/eficode/wait-for/v2.2.4/wait-for -O /bin/wait-for && \
+RUN wget https://raw.githubusercontent.com/eficode/wait-for/v${WAIT_FOR_VERSION}/wait-for -O /bin/wait-for && \
     chmod +x /bin/wait-for
+
+# Download and install gomplate
+RUN wget https://github.com/hairyhenderson/gomplate/releases/download/v${GOMPLATE_VERSION}/gomplate_linux-amd64 -O /bin/gomplate && \
+    chmod +x /bin/gomplate
 
 # Create a non-root user and group
 RUN groupadd -r rathena && useradd -r -g rathena rathena
