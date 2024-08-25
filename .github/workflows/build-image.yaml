@@ -30,9 +30,6 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
     
-    - name: Pull prebuilt image to cache
-      run: docker pull ghcr.io/${{ github.repository }}/rathena:latest || true
-    
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
