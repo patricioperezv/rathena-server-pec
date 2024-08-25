@@ -1,5 +1,11 @@
 FROM debian:12
 
+# Define the ARG for the revision to be cloned
+ARG REVISION=master
+
+# Define the ARG for the build configuration
+ARG BUILD_CONFIGURE="--enable-packetver=20211103"
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         git \
