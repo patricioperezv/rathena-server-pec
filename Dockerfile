@@ -24,6 +24,9 @@ RUN apt-get update && \
 RUN wget https://raw.githubusercontent.com/eficode/wait-for/v2.2.4/wait-for -O /bin/wait-for && \
     chmod +x /bin/wait-for
 
+    # Set the working directory
+WORKDIR /rathena
+
 # Clone the rathena repository and fetch the specified commit
 RUN git init /rathena && \
     cd /rathena && \
@@ -33,9 +36,6 @@ RUN git init /rathena && \
 
 # Set the build configuration as an environment variable
 ENV BUILD_CONFIGURE=${BUILD_CONFIGURE}
-
-# Set the working directory
-WORKDIR /rathena
 
 RUN ./configure ${BUILD_CONFIGURE} && \
     make clean && \
