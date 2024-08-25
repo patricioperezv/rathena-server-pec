@@ -29,8 +29,13 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ github.token }}
-
-    - name: Build and push Docker image
-      run: |
-        docker build --build-arg REVISION=${{ env.LATEST_REVISION }} -t ghcr.io/${{ github.repository }}/rathena:latest .
-        docker push ghcr.io/${{ github.repository }}/rathena:latest
+    
+    - name: Pull prebuilt image to cache
+      run: docker pull ghcr.io/${{ github.repository }}/rathena:latest || true
+    
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        build-args: REVISION="${{ env.LATEST_REVISION }}"
+        push: true
+        tags: ghcr.io/${{ github.repository }}/rathena:${{ env.LATEST_REVISION }}, ghcr.io/${{ github.repository }}/rathena:latest
