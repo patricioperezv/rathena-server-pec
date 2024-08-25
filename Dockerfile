@@ -6,6 +6,7 @@ ARG REVISION=master
 # Define the ARG for the build configuration
 ARG BUILD_CONFIGURE="--enable-packetver=20211103"
 
+# Install necessary dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         git \
@@ -24,8 +25,15 @@ RUN apt-get update && \
 RUN wget https://raw.githubusercontent.com/eficode/wait-for/v2.2.4/wait-for -O /bin/wait-for && \
     chmod +x /bin/wait-for
 
-    # Set the working directory
+# Create a non-root user and group
+RUN groupadd -r rathena && useradd -r -g rathena rathena
+
+# Set the working directory and change ownership to the non-root user
 WORKDIR /rathena
+RUN chown -R rathena:rathena /rathena
+
+# Switch to the non-root user
+USER rathena
 
 # Clone the rathena repository and fetch the specified commit
 RUN git init /rathena && \
@@ -37,6 +45,10 @@ RUN git init /rathena && \
 # Set the build configuration as an environment variable
 ENV BUILD_CONFIGURE=${BUILD_CONFIGURE}
 
+# Run the build commands
 RUN ./configure ${BUILD_CONFIGURE} && \
     make clean && \
     make server
+
+# Default command
+CMD ["bash"]

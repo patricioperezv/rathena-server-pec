@@ -5,7 +5,7 @@ services:
     image: busybox
     container_name: "rathena_init_db"
     volumes:
-      - "/data/AppData/rathena/db:/var/lib/mysql" # mount db volume
+      - "/data/AppData/rathena/db-migration:/var/lib/mysql" # mount db volume
   db:
     image: "mariadb:11"
     container_name: "rathena_db"
