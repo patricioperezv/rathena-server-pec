@@ -35,4 +35,4 @@ jobs:
       with:
         build-args: REVISION="${{ env.LATEST_REVISION }}"
         push: true
-        tags: ghcr.io/${{ github.repository }}/rathena:${{ env.LATEST_REVISION }}, ghcr.io/${{ github.repository }}/rathena:latest
+        tags: ghcr.io/${{ github.repository }}/rathena:${{ env.LATEST_REVISION }},ghcr.io/${{ github.repository }}/rathena:latest
