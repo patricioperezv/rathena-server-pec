@@ -28,8 +28,7 @@ services:
       - init-db
   login:
     image: "ghcr.io/patricioperezv/rathena-server-pec/rathena:f3c8c70c810788f774ec39bf1cd8570488182742"
-    #command: sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /tmp/inter_conf.txt -o /rathena/conf/import/inter_conf.txt && /bin/wait-for db:3306 -- /rathena/login-server"
-    command: sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /tmp/inter_conf.txt -o /rathena/conf/import/inter_conf.txt && tail -f /dev/null"
+    command: sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /tmp/inter_conf.txt -o /rathena/conf/import/inter_conf.txt && /bin/wait-for db:3306 -- /rathena/login-server"
     ports:
       - "6900:6900" # login server
     init: true # helps with signal forwarding and process reaping
@@ -41,9 +40,9 @@ services:
       - source: inter_config
         target: /tmp/inter_conf.txt
       - source: char_config
-        target: /tmp/char_conf.txt
+        target: /rathena/conf/import/char_conf.txt
       - source: map_config
-        target: /tmp/map_conf.txt
+        target: /rathena/conf/import/map_conf.txt
     depends_on:
       - db
   # char:
