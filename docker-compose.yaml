@@ -28,7 +28,7 @@ services:
       - init-db
   login:
     image: "ghcr.io/patricioperezv/rathena-server-pec/rathena:f3c8c70c810788f774ec39bf1cd8570488182742"
-    #command: sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /rathena/conf/import/inter_conf.txt && /bin/wait-for db:3306 -- /rathena/login-server"
+    #command: sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /tmp/inter_conf.txt -o /rathena/conf/import/inter_conf.txt && /bin/wait-for db:3306 -- /rathena/login-server"
     command: sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /tmp/inter_conf.txt -o /rathena/conf/import/inter_conf.txt && tail -f /dev/null"
     ports:
       - "6900:6900" # login server
