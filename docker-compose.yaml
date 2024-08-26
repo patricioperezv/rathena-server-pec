@@ -28,26 +28,35 @@ services:
       - init-db
   login:
     image: "ghcr.io/patricioperezv/rathena-server-pec/rathena:f3c8c70c810788f774ec39bf1cd8570488182742"
-    command: sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /tmp/inter_conf.txt -o /rathena/conf/import/inter_conf.txt && /bin/wait-for db:3306 -- /rathena/login-server"
+    command: |
+      sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /tmp/inter_conf.txt -o /rathena/conf/import/inter_conf.txt && \
+      /bin/gomplate -d server_user_password=/run/secrets/RATHENA_SERVER_COMMUNICATION -f /tmp/char_conf.txt -o /rathena/conf/import/char_conf.txt && \
+      /bin/gomplate -d server_user_password=/run/secrets/RATHENA_SERVER_COMMUNICATION -f /tmp/map_conf.txt -o /rathena/conf/import/map_conf.txt && \
+      /bin/wait-for db:3306 -- /rathena/login-server"
     ports:
       - "6900:6900" # login server
     init: true # helps with signal forwarding and process reaping
     secrets:
       - RATHENA_DB_PASSWORD
+      - RATHENA_SERVER_COMMUNICATION
     tty: true
     stdin_open: true
     configs:
       - source: inter_config
         target: /tmp/inter_conf.txt
       - source: char_config
-        target: /rathena/conf/import/char_conf.txt
+        target: /tmp/char_conf.txt
       - source: map_config
-        target: /rathena/conf/import/map_conf.txt
+        target: /tmp/map_conf.txt
     depends_on:
       - db
   char:
     image: "ghcr.io/patricioperezv/rathena-server-pec/rathena:f3c8c70c810788f774ec39bf1cd8570488182742"
-    command: sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /tmp/inter_conf.txt -o /rathena/conf/import/inter_conf.txt && /bin/wait-for db:3306 -- /rathena/char-server"
+    command: |
+      sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /tmp/inter_conf.txt -o /rathena/conf/import/inter_conf.txt && \
+      /bin/gomplate -d server_user_password=/run/secrets/RATHENA_SERVER_COMMUNICATION -f /tmp/char_conf.txt -o /rathena/conf/import/char_conf.txt && \
+      /bin/gomplate -d server_user_password=/run/secrets/RATHENA_SERVER_COMMUNICATION -f /tmp/map_conf.txt -o /rathena/conf/import/map_conf.txt && \
+      /bin/wait-for db:3306 -- /rathena/char-server"
     ports:
       - "6121:6121" # char server
     init: true # helps with signal forwarding and process reaping
@@ -55,19 +64,23 @@ services:
     stdin_open: true
     secrets:
       - RATHENA_DB_PASSWORD
+      - RATHENA_SERVER_COMMUNICATION
     configs:
       - source: inter_config
         target: /tmp/inter_conf.txt
       - source: char_config
-        target: /rathena/conf/import/char_conf.txt
+        target: /tmp/char_conf.txt
       - source: map_config
-        target: /rathena/conf/import/map_conf.txt
+        target: /tmp/map_conf.txt
     depends_on:
       - login
-
   map:
     image: "ghcr.io/patricioperezv/rathena-server-pec/rathena:f3c8c70c810788f774ec39bf1cd8570488182742"
-    command: sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /tmp/inter_conf.txt -o /rathena/conf/import/inter_conf.txt && /bin/wait-for db:3306 -- /rathena/map-server"
+    command: |
+      sh -c "/bin/gomplate -d db_password=/run/secrets/RATHENA_DB_PASSWORD -f /tmp/inter_conf.txt -o /rathena/conf/import/inter_conf.txt && \
+      /bin/gomplate -d server_user_password=/run/secrets/RATHENA_SERVER_COMMUNICATION -f /tmp/char_conf.txt -o /rathena/conf/import/char_conf.txt && \
+      /bin/gomplate -d server_user_password=/run/secrets/RATHENA_SERVER_COMMUNICATION -f /tmp/map_conf.txt -o /rathena/conf/import/map_conf.txt && \
+      /bin/wait-for db:3306 -- /rathena/map-server"
     ports:
       - "5121:5121" # map server
     init: true # helps with signal forwarding and process reaping
@@ -75,23 +88,23 @@ services:
     stdin_open: true
     secrets:
       - RATHENA_DB_PASSWORD
+      - RATHENA_SERVER_COMMUNICATION
     configs:
       - source: inter_config
         target: /tmp/inter_conf.txt
       - source: char_config
-        target: /rathena/conf/import/char_conf.txt
+        target: /tmp/char_conf.txt
       - source: map_config
-        target: /rathena/conf/import/map_conf.txt
+        target: /tmp/map_conf.txt
     depends_on:
       - char
-
 volumes:
   rathena_sql_files:
-
 secrets:
   RATHENA_DB_PASSWORD:
     external: true
-
+  RATHENA_SERVER_COMMUNICATION:
+    external: true
 configs:
   inter_config:
     file: config/inter.conf
