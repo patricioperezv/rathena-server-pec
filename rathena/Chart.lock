@@ -1,0 +1,9 @@
+dependencies:
+- name: common
+  repository: oci://tccr.io/truecharts
+  version: 24.1.14
+- name: mariadb
+  repository: oci://tccr.io/truecharts
+  version: 15.3.3
+digest: sha256:bdc7118c7a7cf14409c651b75b350ab125516d3dc23403486c9b8d4a9f829dfc
+generated: "2024-09-08T23:36:20.767646-03:00"

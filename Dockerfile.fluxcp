@@ -1,0 +1,5 @@
+FROM nginx:1.27
+
+# Define the ARG for the revision to be cloned
+ARG REVISION=master
+

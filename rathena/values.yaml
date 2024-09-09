@@ -1,0 +1,231 @@
+image:
+  repository: ghcr.io/patricioperezv/rathena-server-pec/rathena
+  pullPolicy: IfNotPresent
+  tag: f3c8c70c810788f774ec39bf1cd8570488182742@sha256:b2e3b660fa5f8ffb73240ae33a85f02657e7e895528db295d82369b75b009799
+
+TZ: America/Santiago
+
+mariadb:
+  enabled: true
+  mariadbUsername: "{{ .Values.mariadb.mariadbUsername }}"
+  password: "{{ .Values.mariadb.password }}"
+  mariadbDatabase: rathena
+  rathenaImage:
+    repository: ghcr.io/patricioperezv/rathena-server-pec/rathena
+    pullPolicy: IfNotPresent
+    tag: f3c8c70c810788f774ec39bf1cd8570488182742@sha256:b2e3b660fa5f8ffb73240ae33a85f02657e7e895528db295d82369b75b009799
+  persistence:
+    sql-files:
+      enabled: true
+      type: emptyDir
+      mountPath: /docker-entrypoint-startdb.d
+      targetSelectAll: true
+  workload:
+    main:
+      podSpec:
+        initContainers:
+          initial-sql:
+            enabled: true
+            type: install
+            imageSelector: rathenaImage
+            command: ["/bin/bash", "-c"]
+            args: ["cp /rathena/sql-files/* /docker-entrypoint-startdb.d"]
+
+portal:
+  open:
+    enabled: false
+
+persistence:
+  inter-conf:
+    enabled: true
+    type: secret
+    objectName: conf
+    items:
+      - key: inter-conf
+        path: inter_conf.txt
+      - key: char-conf
+        path: char_conf.txt
+      - key: map-conf
+        path: map_conf.txt
+    mountPath: /rathena/conf/import
+    readOnly: true
+    targetSelectAll: true
+secret:
+  conf:
+    enabled: true
+    data:
+      inter-conf: |
+        // MySQL Login server
+        login_server_ip: db
+        login_server_port: 3306
+        login_server_id: {{ .Values.mariadb.mariadbUsername }}
+        login_server_pw: {{ .Values.mariadb.password }}
+        login_server_db: {{ .Values.mariadb.mariadbDatabase }}
+
+        ipban_db_ip: db
+        ipban_db_port: 3306
+        ipban_db_id: {{ .Values.mariadb.mariadbUsername }}
+        ipban_db_pw: {{ .Values.mariadb.password }}
+        ipban_db_db: {{ .Values.mariadb.mariadbDatabase }}
+
+        // MySQL Character server
+        char_server_ip: db
+        char_server_port: 3306
+        char_server_id: {{ .Values.mariadb.mariadbUsername }}
+        char_server_pw: {{ .Values.mariadb.password }}
+        char_server_db: {{ .Values.mariadb.mariadbDatabase }}
+
+        // MySQL Map Server
+        map_server_ip: db
+        map_server_port: 3306
+        map_server_id: {{ .Values.mariadb.mariadbUsername }}
+        map_server_pw: {{ .Values.mariadb.password }}
+        map_server_db: {{ .Values.mariadb.mariadbDatabase }}
+
+        // MySQL Web Server
+        web_server_ip: db
+        web_server_port: 3306
+        web_server_id: {{ .Values.mariadb.mariadbUsername }}
+        web_server_pw: {{ .Values.mariadb.password }}
+        web_server_db: {{ .Values.mariadb.mariadbDatabase }}
+
+        // MySQL Log Database
+        log_db_ip: db
+        log_db_port: 3306
+        log_db_id: {{ .Values.mariadb.mariadbUsername }}
+        log_db_pw: {{ .Values.mariadb.password }}
+        log_db_db: {{ .Values.mariadb.mariadbDatabase }}
+        log_login_db: loginlog
+      char-conf: |
+        // Server Communication username and password.
+        userid: ref+op://gherkin/ragnarok-server-communication/username
+        passwd: ref+op://gherkin/ragnarok-server-communication/password
+
+        server_name: rAthena PEC
+        wisp_server_name: Pecsi
+        login_ip: login
+      map-conf: |
+        // Server Communication username and password.
+        userid: ref+op://gherkin/ragnarok-server-communication/username
+        passwd: ref+op://gherkin/ragnarok-server-communication/password
+
+        char_ip: char
+        map_ip: map
+
+service:
+  main:
+    enabled: false
+  login:
+    enabled: true
+    primary: true
+    ports:
+      login:
+        enabled: true
+        primary: true
+        port: 6900
+  char:
+    enabled: true
+    ports:
+      char:
+        enabled: true
+        primary: true
+        port: 6121
+  map:
+    enabled: true
+    ports:
+      map:
+        enabled: true
+        primary: true
+        port: 5121
+
+workload:
+  main:
+    enabled: false
+  login:
+    enabled: true
+    primary: true
+    type: Deployment
+    podSpec:
+      containers:
+        main:
+          enabled: true
+          primary: true
+          stdin: true
+          tty: true
+          command: ["/bin/bash", "-c"]
+          args: ["sleep 3600"]
+          #args: ["/rathena/login-server"]
+          probes:
+            liveness:
+              enabled: true
+              type: tcp
+              port: 6900
+              initialDelaySeconds: 10000
+            readiness:
+              enabled: true
+              type: tcp
+              port: 6900
+              initialDelaySeconds: 10000
+            startup:
+              enabled: true
+              type: tcp
+              port: 6900
+              initialDelaySeconds: 10000
+  map:
+    enabled: true
+    type: Deployment
+    podSpec:
+      containers:
+        main:
+          enabled: true
+          primary: true
+          stdin: true
+          tty: true
+          command: ["/bin/bash", "-c"]
+          args: ["sleep 3600"]
+          #args: ["/rathena/map-server"]
+          probes:
+            liveness:
+              enabled: true
+              type: tcp
+              port: 5121
+              initialDelaySeconds: 10000
+            readiness:
+              enabled: true
+              type: tcp
+              port: 5121
+              initialDelaySeconds: 10000
+            startup:
+              enabled: true
+              type: tcp
+              port: 5121
+              initialDelaySeconds: 10000
+  char:
+    enabled: true
+    type: Deployment
+    podSpec:
+      containers:
+        main:
+          enabled: true
+          primary: true
+          stdin: true
+          tty: true
+          command: ["/bin/bash", "-c"]
+          args: ["sleep 3600"]
+          #args: ["/rathena/char-server"]
+          probes:
+            liveness:
+              enabled: true
+              type: tcp
+              port: 6121
+              initialDelaySeconds: 10000
+            readiness:
+              enabled: true
+              type: tcp
+              port: 6121
+              initialDelaySeconds: 10000
+            startup:
+              enabled: true
+              type: tcp
+              port: 6121
+              initialDelaySeconds: 10000
