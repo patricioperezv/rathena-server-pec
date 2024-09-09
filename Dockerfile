@@ -17,6 +17,7 @@ RUN apt-get update && \
         make \
         libmariadb-dev \
         libmariadbclient-dev-compat \
+        net-tools \
         gcc \
         g++ \
         zlib1g-dev \
